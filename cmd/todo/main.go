@@ -1,9 +1,10 @@
 package main
 
 import (
+  "flag"
   "fmt"
   "os"
-  "strings"
+  _ "strings"
   "rcoproc.com/rcoproc/todo"
 )
 
@@ -13,6 +14,13 @@ const todoFileName = ".todo.json"
 
 
 func main() {
+  // Parsing command line flags
+  task := flag.String("task","", "Task to be included in the Todo List")
+  list := flag.Bool("list", false, "List all tasks")
+  complete := flag.Int("complete", 0, "Item to be completed")
+
+  flag.Parse()
+
   // Define an items list
   l := &todo.List{}
   
@@ -22,20 +30,31 @@ func main() {
     os.Exit(1)
   }
 
-  // Decide what to do based on the number of arguments provided
+  // Decide what to do based on the provided flags
   switch  {
-  case len(os.Args) == 1:
+  case *list:
     // List current to do items
     for _, item := range *l {
-      fmt.Println(item.Task)
+      if !item.Done {
+        fmt.Println(item.Task)
+      }
     }
 
-  default:
-    // Concanate all arguments with a space
-    item := strings.Join(os.Args[1:], " ")
+  case *complete > 0:
+    if err := l.Complete(*complete); err != nil {
+      fmt.Fprintln(os.Stderr, err)
+      os.Exit(1)
+    }
 
+    // Save the new List
+    if err := l.Save(todoFileName); err != nil {
+      fmt.Fprintln(os.Stderr, err)
+      os.Exit(1)
+    }
+
+  case *task != "":
     // Add the task
-    l.Add(item)
+    l.Add(*task)
 
     // Save the new list
     if err := l.Save(todoFileName); err != nil {
