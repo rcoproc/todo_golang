@@ -17,6 +17,10 @@ type item struct {
 
 type List []item
 
+type Stringer interface {
+  String() string
+}
+
 func main() {
 	fmt.Println("vim-go")
 }
@@ -82,4 +86,22 @@ func (l *List) Get(filename string) error {
 	}
 
 	return json.Unmarshal(file, l)
+}
+
+//String prints outs a formatted list
+//Implement the fmt.Stringer interface
+func (l *List) String() string {
+  formatted := ""
+
+  for i, t:= range *l {
+    prefix := " "
+    if t.Done {
+      prefix = " X "
+    }
+
+    //Adjust the item number k to print numbers starting from  1 instead of
+    formatted += fmt.Sprintf( "%s%d: %s\n", prefix, i+1, t.Task )
+  }
+
+  return formatted
 }
