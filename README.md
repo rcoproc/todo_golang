@@ -2,7 +2,7 @@
 
 Sample Todo list App build with GoLang 1.13
 
-## Build todo Command Line appp
+## Build todo Command Line App
 
     cd cmd/todo
     go build .
